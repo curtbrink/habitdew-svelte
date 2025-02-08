@@ -10,6 +10,16 @@ pipeline {
             steps {
                 // Checkout the code from GitHub repository
                 git branch: 'main', url: 'https://github.com/curtbrink/habitdew-svelte'
+
+                // grab the app name and version from the package.json
+                script {
+                    def packageJson = readJSON file: 'package.json'
+                    def hdVersion = packageJson.version
+                    def hdName = packageJson.name
+                    
+                    env.HD_VERSION = hdVersion
+                    env.HD_NAME = hdName
+                }
             }
         }
 
@@ -25,10 +35,13 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Build Docker Image') {
             steps {
-                // Deploy your app if needed (e.g., to a staging server)
-                sh 'echo This is where a deploy would go'
+                script {
+                    // Build the Docker image and tag it with the version
+                    def imageName = "${env.HD_NAME}:${env.HD_VERSION}"
+                    sh "docker build -t ${imageName} ."
+                }
             }
         }
     }
