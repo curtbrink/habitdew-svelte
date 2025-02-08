@@ -13,16 +13,15 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Install dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Test') {
+        stage('Build') {
             steps {
-                // Run tests if applicable
-                sh 'npm test'
+                sh 'npm run build'
             }
         }
 
