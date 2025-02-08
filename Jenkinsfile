@@ -50,9 +50,12 @@ pipeline {
                 script {
                     // bring down existing container then recreate with the new image
                     def imageName = "${env.HD_NAME}:${env.HD_VERSION}"
-                    sh "docker stop ${env.HD_NAME}"
-                    sh "docker rm ${env.HD_NAME}"
-                    sh "docker run -d --name ${env.HD_NAME} ${imageName}"
+                    sh """
+                        docker ps -q -f name=${env.HD_NAME} | grep -q . && \
+                        docker stop ${env.HD_NAME} && \
+                        docker rm ${env.HD_NAME}
+                    """
+                    sh "docker run -d -p 28601:28601 --name ${env.HD_NAME} ${imageName}"
                 }
             }
         }
