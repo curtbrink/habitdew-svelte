@@ -45,17 +45,26 @@ pipeline {
             }
         }
 
+        stage('Remove existing Docker container') {
+            steps {
+                script {
+                    def containerExists = sh(script: "docker ps -q -f name=${env.HD_NAME}", returnStdout: true).trim()
+                    if (containerExists) {
+                        // Stop and remove container if it's running
+                        sh "docker stop ${env.HD_NAME}"
+                        sh "docker rm ${env.HD_NAME}"
+                    } else {
+                        echo "Container ${env.HD_NAME} does not exist, skipping stop/remove."
+                    }
+                }
+            }
+        }
+
         stage('Deploy Docker image') {
             steps {
                 script {
-                    // bring down existing container then recreate with the new image
-                    def imageName = "${env.HD_NAME}:${env.HD_VERSION}"
-                    sh """
-                        docker ps -q -f name=${env.HD_NAME} | grep -q . && \
-                        docker stop ${env.HD_NAME} && \
-                        docker rm ${env.HD_NAME}
-                    """
-                    sh "docker run -d -p 28601:28601 --name ${env.HD_NAME} ${imageName}"
+                    // recreate container with new image
+                    sh "docker run -d -p 28601:28601 --name ${env.HD_NAME} ${env.HD_NAME}:${env.HD_VERSION}"
                 }
             }
         }
