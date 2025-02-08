@@ -40,7 +40,7 @@ pipeline {
                 script {
                     // Build the Docker image and tag it with the version
                     def imageName = "${env.HD_NAME}:${env.HD_VERSION}"
-                    sh "docker context use rootless"
+                    sh "export DOCKER_HOST=unix:///run/user/1000/docker.sock"
                     sh "docker build -t ${imageName} ."
                 }
             }
