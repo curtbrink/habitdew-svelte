@@ -35,12 +35,24 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker image') {
             steps {
                 script {
                     // Build the Docker image and tag it with the version
                     def imageName = "${env.HD_NAME}:${env.HD_VERSION}"
                     sh "docker build -t ${imageName} ."
+                }
+            }
+        }
+
+        stage('Deploy Docker image') {
+            steps {
+                script {
+                    // bring down existing container then recreate with the new image
+                    def imageName = "${env.HD_NAME}:${env.HD_VERSION}"
+                    sh "docker stop ${env.HD_NAME}"
+                    sh "docker rm ${env.HD_NAME}"
+                    sh "docker run -d --name ${env.HD_NAME} ${imageName}"
                 }
             }
         }
