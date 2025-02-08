@@ -36,6 +36,7 @@ pipeline {
         }
 
         stage('Build Docker image') {
+            when { branch 'main' }
             steps {
                 script {
                     // Build the Docker image and tag it with the version
@@ -46,6 +47,7 @@ pipeline {
         }
 
         stage('Remove existing Docker container') {
+            when { branch 'main' }
             steps {
                 script {
                     def containerExists = sh(script: "docker ps -q -f name=${env.HD_NAME}", returnStdout: true).trim()
@@ -61,6 +63,7 @@ pipeline {
         }
 
         stage('Deploy Docker image') {
+            when { branch 'main' }
             steps {
                 script {
                     // recreate container with new image
